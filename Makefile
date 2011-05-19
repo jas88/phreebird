@@ -9,20 +9,20 @@ bin:
 
 lib:
 	mkdir lib
-		
+
 phreebird: bin
-	$(CC) -o bin/phreebird phreebird.c -lldns -lcrypto -levent -lghthash
+	$(CC) -o bin/phreebird phreebird.c -lldns -lcrypto -levent -lghthash $(EXTRA_LIBS)
 
 phreeload: bin lib
 	$(CC) -D_GNU_SOURCE -lunbound -lcrypto -ldl -Wall -shared -fPIC -o lib/phreeload.so phreeload.c -I /usr/local/ssl/include
 	cp phreeload bin
 
 ldns_chase: bin
-	$(CC) -o bin/ldns_chase ldns_chase.c -lldns -lcrypto
+	$(CC) -o bin/ldns_chase ldns_chase.c -lldns -lcrypto $(EXTRA_LIBS)
 
 unbound_trace: bin
-	$(CC) -o bin/unbound_trace unbound_trace.c -lunbound -lldns -lcrypto 
-		
+	$(CC) -o bin/unbound_trace unbound_trace.c -lunbound -lldns -lcrypto $(EXTRA_LIBS)
+
 package:
 	rm -rf phreebird_suite_$(VERSION) 
 	mkdir phreebird_suite_$(VERSION)
@@ -45,4 +45,3 @@ uninstall: all
 clean:
 	rm -rf bin
 	rm -rf lib
-		
