@@ -145,6 +145,8 @@ ldns_rr_list *build_nsec3_response(ldns_rdf *name, ldns_rdf *shortname, char *ma
 void pb_abort(char *str);
 bool validate_name(char *str);
 
+unsigned long listen_addr=INADDR_ANY;
+char *listen_name=NULL;
 
 // SECTION 4:  MAIN
 
@@ -156,14 +158,15 @@ int main(int argc, char **argv){
 	//extern char *optarg;
 	//extern int optind, opterr, optopt;	
 
-	
+	listen_name=strdup("0.0.0.0");
+	if (!listen_name) exit(255);
 
 	opts = calloc(sizeof(struct phreebird_opts_struct), 1);  
 	if(opts==NULL) exit(255);
 
 	set_defaults(opts);
 
-	while ((c = getopt(argc, argv, "k:gdb:?m:")) != -1) {
+	while ((c = getopt(argc, argv, "k:gdb:?m:l:")) != -1) {
 		switch (c){
 			case 'k':
 				LDNS_FREE(opts->dnskey_fname);
@@ -188,6 +191,12 @@ int main(int argc, char **argv){
 				break;
 			case 'm':
 				nsec3_rater.max = atoi(optarg);
+				break;
+			case 'l':
+				inet_aton(optarg,&listen_addr);
+				free(listen_name);
+				listen_name=strdup(optarg);
+				if (!listen_name) exit(255);
 				break;
 			case '?':
 				do_help();
@@ -316,7 +325,7 @@ int init_udp_socket(unsigned short port){
 	
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_addr.s_addr = listen_addr;
 	bzero(&(addr.sin_zero), 8);
 	
 	if (bind(sock, (struct sockaddr*)&addr, len) < 0) {
@@ -350,7 +359,7 @@ int init_tcp_socket(unsigned short port){
 	fcntl(sock, F_SETFL, O_NONBLOCK);
 
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	addr.sin_addr.s_addr = listen_addr;
 	addr.sin_port = htons(port);
 	
 	status = bind(sock, (void *)&addr, sizeof(struct sockaddr_in));	
@@ -378,7 +387,7 @@ int execute_event_listener(phreebird_opts *opts){
 	event_add(&rec_from_backend, NULL);
 	event_add(&rec_from_tcp, NULL);
 
-	httpd = evhttp_start("0.0.0.0", opts->http_port);
+	httpd = evhttp_start(listen_name, opts->http_port);
 	if(httpd != NULL) {
 		//pb_abort("couldn't start web server\n"); }
 		evhttp_set_timeout(httpd, 3);
@@ -523,7 +532,8 @@ void stub_handle_request(phreebird_opts *opts, char *buf, size_t len, request_ca
 	//CASE 1:  The stub wants a DS or DNSKEY record.  We don't go back to the backend for this.
 
 
-	if((ldns_rr_get_type(q) == LDNS_RR_TYPE_DNSKEY ||
+
+	if((ldns_rr_get_type(q) == LDNS_RR_TYPE_DNSKEY ||
 		ldns_rr_get_type(q) == LDNS_RR_TYPE_DS)
 		&& (ldns_dname_label_count(ldns_rr_owner(q))==2)){
 
@@ -1341,6 +1351,7 @@ void do_help(){
 	fprintf(stdout, "                DEPLOYED ON PRODUCTION NETWORKS.  Yet.\n");
 	fprintf(stdout, "Options:\n");
 	fprintf(stdout, "  -k : Filename of private key (default: dns.key)\n");
+	fprintf(stdout, "  -l : IP address to listen on (default: 0.0.0.0)\n");
 	fprintf(stdout, "  -d : Activate debugging\n");
 	fprintf(stdout, "  -m : Set max # of unique NSEC3 responses to sign a second (Default: 200)\n");
 	fprintf(stdout, "Dangerous Options:\n");
