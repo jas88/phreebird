@@ -1,5 +1,5 @@
 VERSION=1.02
-CC=gcc -L/usr/local/lib -O2 -g -Xlinker -R /usr/local/lib -DPB_VERSION="\"$(VERSION)\""
+CC=gcc -Ldeps/lib -Ideps/include -O2 -g -DPB_VERSION="\"$(VERSION)\""
 INSTALLDIR=/usr/local
 
 all: phreebird phreeload ldns_chase unbound_trace
