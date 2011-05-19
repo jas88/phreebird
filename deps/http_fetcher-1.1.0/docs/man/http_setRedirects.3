@@ -1,0 +1,29 @@
+.TH "HTTP Fetcher" "3" "May 2, 2004" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_setRedirects\fR \- Sets the number of HTTP redirects HTTP Fetcher will automatically follow
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBvoid http_setRedirects(int \fR\fIredirects\fR\fB);
+.br 
+.SH "DESCRIPTION"
+.LP 
+When HTTP Fetcher receives a response header with a status code of 3XX, it will automatically follow the associated 'Location:' field, if any.  \fIredirects\fR  is the maximum number of redirects to follow before returning an error.
+
+To disable redirects, pass a 0.  The default is to follow 3 redirects.
+
+Under this implementation (which is just a stopgap, really) the caller won't be aware of any redirection and will assume the returned document came from the original URL it requested.  Future releases (2.x.x) will improve on this poor design.
+
+.SH "RETURN VALUE"
+.LP 
+\fBhttp_setTimeout\fR returns no value and should always succeed.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_fetch\fR(3), \fBhttp_setUserAgent\fR(3), \fBhttp_setReferer\fR(3), 
+.br
+\fBhttp_setRedirects\fR(3), \fBhttp_parseFilename\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

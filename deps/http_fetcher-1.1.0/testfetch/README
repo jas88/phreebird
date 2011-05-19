@@ -1,0 +1,23 @@
+testfetch
+Lyle Hanson (lhanson@users.sourceforge.net)
+http://http-fetcher.sourceforge.net
+===============================================================================
+
+Test program for HTTP Fetcher.
+
+testfetch is a small, simple program that demonstrates basic use of the
+HTTP Fetcher library.
+
+Once you've installed HTTP Fetcher, testing it out with testfetch is simple:
+
+    1) Type 'configure'
+    2) Type 'make'
+    3) Type 'testfetch'
+
+You should receive a message saying that testfetch successfully downloaded
+a web page.  Check out the source for simple use of HTTP Fetcher.
+
+For a more in-depth example take a look at lfetch, a program that fully
+utilizes HTTP Fetcher to implement a feature-rich HTTP download tool
+(available at http://sourceforge.net/projects/lfetch)
+

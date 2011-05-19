@@ -1,0 +1,34 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_setUserAgent\fR \- Changes the User Agent shown to the server during an HTTP GET request.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBint http_setUserAgent(const char *\fR\fInewAgent\fR\fB);
+.br 
+.SH "DESCRIPTION"
+.LP 
+The User Agent field of an HTTP request tells the server what software is making the request.  By default, "HTTP Fetcher/VERSION" is sent.
+
+Calling \fBhttp_setUserAgent\fR will change the default User Agent\fR to \fInewAgent\fR for subsequent requests (until the next call to \fBhttp_setUserAgent\fR).
+
+If you pass in \fBNULL\fR as an argument, HTTP Fetcher will NOT give the server a User Agent.
+
+This function is useful for mimicing a browser, deceiving the webserver, or a number of other creative uses.
+.SH "RETURN VALUE"
+.LP 
+On success, \fBhttp_setUserAgent\fR returns 0.
+
+On error, \-1 is returned, and the previous value of
+.br 
+\fIuserAgent\fR is unchanged.  \fBhttp_perror\fR can be used to print an informative error message.  \fBhttp_strerror\fR can be used to get a pointer to the current error description message.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_fetch\fR(3), \fBhttp_setReferer\fR(3), \fBhttp_setTimeout\fR(3), 
+.br
+\fBhttp_setRedirects\fR(3), \fBhttp_parseFilename\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

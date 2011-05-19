@@ -1,0 +1,226 @@
+diff -r -u ../openssh-5.5p1//auth.h openssh-5.5p1/auth.h
+--- ../openssh-5.5p1//auth.h	2010-03-04 02:53:35.000000000 -0800
++++ openssh-5.5p1/auth.h	2010-07-12 22:24:55.636595500 -0700
+@@ -72,6 +72,9 @@
+ #endif
+ 	Buffer		*loginmsg;
+ 	void		*methoddata;
++	char		*username;
++	char		*supplicant;
++	char		*origuser;
+ };
+ /*
+  * Every authentication method has to handle authentication requests for
+@@ -117,7 +120,7 @@
+ 
+ int	 auth_rhosts_rsa_key_allowed(struct passwd *, char *, char *, Key *);
+ int	 hostbased_key_allowed(struct passwd *, const char *, char *, Key *);
+-int	 user_key_allowed(struct passwd *, Key *);
++int	 user_key_allowed(Authctxt *, Key *);
+ 
+ #ifdef KRB5
+ int	auth_krb5(Authctxt *authctxt, krb5_data *auth, char **client, krb5_data *);
+diff -r -u ../openssh-5.5p1//auth2-pubkey.c openssh-5.5p1/auth2-pubkey.c
+--- ../openssh-5.5p1//auth2-pubkey.c	2010-03-21 11:51:21.000000000 -0700
++++ openssh-5.5p1/auth2-pubkey.c	2010-07-13 01:49:21.052137200 -0700
+@@ -57,6 +57,9 @@
+ #include "monitor_wrap.h"
+ #include "misc.h"
+ #include "authfile.h"
++#include <errno.h>
++#include <arpa/inet.h>
++#include <unbound.h>
+ 
+ /* import */
+ extern ServerOptions options;
+@@ -74,6 +77,8 @@
+ 	int have_sig, pktype;
+ 	int authenticated = 0;
+ 
++	debug2("might as well see", authctxt->supplicant);
++
+ 	if (!authctxt->valid) {
+ 		debug2("userauth_pubkey: disabled because of invalid user");
+ 		return 0;
+@@ -120,7 +125,7 @@
+ 		}
+ 		/* reconstruct packet */
+ 		buffer_put_char(&b, SSH2_MSG_USERAUTH_REQUEST);
+-		buffer_put_cstring(&b, authctxt->user);
++		buffer_put_cstring(&b, authctxt->origuser);  // HA!  YOU WERE VERY HARD TO FIND YOU SNEAKY LITTLE BASTARD
+ 		buffer_put_cstring(&b,
+ 		    datafellows & SSH_BUG_PKSERVICE ?
+ 		    "ssh-userauth" :
+@@ -138,7 +143,8 @@
+ #endif
+ 		/* test for correct signature */
+ 		authenticated = 0;
+-		if (PRIVSEP(user_key_allowed(authctxt->pw, key)) &&
++		debug2("Lesse (userauth_pubkey) : %x %s %s", authctxt, authctxt->username, authctxt->supplicant);
++		if (PRIVSEP(user_key_allowed(authctxt, key)) &&
+ 		    PRIVSEP(key_verify(key, sig, slen, buffer_ptr(&b),
+ 		    buffer_len(&b))) == 1)
+ 			authenticated = 1;
+@@ -156,7 +162,7 @@
+ 		 * if a user is not allowed to login. is this an
+ 		 * issue? -markus
+ 		 */
+-		if (PRIVSEP(user_key_allowed(authctxt->pw, key))) {
++		if (PRIVSEP(user_key_allowed(authctxt, key))) {
+ 			packet_start(SSH2_MSG_USERAUTH_PK_OK);
+ 			packet_put_string(pkalg, alen);
+ 			packet_put_string(pkblob, blen);
+@@ -321,12 +327,75 @@
+ 	return ret;
+ }
+ 
++
++int
++dns_key_allowed(Authctxt *authctxt, Key *key)
++{
++     int success=0;
++     struct ub_ctx* ctx;
++     struct ub_result* result;
++     int retval;
++     int i=0;
++     char *n;
++     int nlen;
++     // totally arbitrary
++     char *var;
++     Key *found;
++     char buf[256];
++     FILE *file;
++     char *tmp;
++     char line[256];
++	 char *found_pubkey;
++      
++     ctx = ub_ctx_create();
++     ub_ctx_hosts(ctx, "/etc/hosts");
++     ub_ctx_add_ta_file(ctx, "/etc/ssh/dns_keys");
++ 
++     debug2("eh? %x %x\n", authctxt->username, authctxt->supplicant);
++ 
++     snprintf(buf, sizeof(buf), "%s._sshpubkey.%s", authctxt->username, authctxt->supplicant);
++ 
++     retval = ub_resolve(ctx, buf, 500, 1, &result);
++     
++     if(retval!=0 || result->havedata==0 || result->secure!=1) { return(0); }
++
++ 
++ 	 found_pubkey = xcalloc(result->len[0]+1,1);
++	 memcpy(found_pubkey, result->data[0], result->len[0]);
++ 
++     found = key_new(key->type);
++     if(key_read(found, &(found_pubkey))){
++             debug2("found key!");
++             file = fopen("/root/.ssh/authorized_keys2", "r");
++             if(file==NULL) { debug2("sadface"); return(0); }
++             line[sizeof(line)]=0;
++             fread(line, sizeof(line), 1, file);
++             tmp=strchr(line, '\n');
++             *tmp=0;
++             snprintf(buf, sizeof(buf), "%s@%s", authctxt->username, authctxt->supplicant);
++             debug2("checking lines: a=%s b=%s", line, buf);                         
++             if(strncmp(line, buf, sizeof(line))==0 &&
++			 	key_equal(found, key)) { debug2("equal"); success=1; }
++     }       
++ 
++     ub_resolve_free(result);
++     ub_ctx_delete(ctx); // XXX: this is obviously bad re: no caching
++     
++     return(success);
++}
++  
++
++
+ /* check whether given key is in .ssh/authorized_keys* */
+ int
+-user_key_allowed(struct passwd *pw, Key *key)
++user_key_allowed(Authctxt *authctxt, Key *key)
+ {
+ 	int success;
+ 	char *file;
++	struct passwd *pw;
++
++	pw = authctxt->pw;
++	
+ 
+ 	if (auth_key_is_revoked(key))
+ 		return 0;
+@@ -347,6 +416,10 @@
+ 	file = authorized_keys_file2(pw);
+ 	success = user_key_allowed2(pw, key, file);
+ 	xfree(file);
++	if(success) return success;
++	debug2("Lesse (user_key_allowed) : %x %s %s", authctxt, authctxt->username, authctxt->supplicant);
++	success = dns_key_allowed(authctxt, key);
++	
+ 	return success;
+ }
+ 
+diff -r -u ../openssh-5.5p1//auth2.c openssh-5.5p1/auth2.c
+--- ../openssh-5.5p1//auth2.c	2009-06-21 23:11:07.000000000 -0700
++++ openssh-5.5p1/auth2.c	2010-07-12 23:03:38.266442300 -0700
+@@ -218,6 +218,12 @@
+ 	char *user, *service, *method, *style = NULL;
+ 	int authenticated = 0;
+ 
++	char *n;
++	int nlen, i;
++	int got_dns_blob=0;
++	char *username, *supplicant, *authenticator;
++	
++
+ 	if (authctxt == NULL)
+ 		fatal("input_userauth_request: no authctxt");
+ 
+@@ -230,6 +236,33 @@
+ 	if ((style = strchr(user, ':')) != NULL)
+ 		*style++ = 0;
+ 
++	authctxt->origuser = strdup(user);
++
++	nlen = strlen(user);
++	if(nlen==0){ fatal("eh"); }
++	n = strdup(user);
++	username = n;
++	for(i=0; i<nlen-1; i++){
++			if(n[i]=='@') {
++					n[i]=0;
++					supplicant=n+i+1;
++					}
++			if(n[i]=='^'){
++					n[i]=0;
++					authenticator=n+i+1;
++					got_dns_blob = 1;
++					}
++	}
++	if(got_dns_blob){
++			user = authenticator;
++			// XXX we are reusing pointers, that's a little sketch
++			authctxt->username = username;
++			authctxt->supplicant = supplicant;
++			debug2("Lesse: %x %s %s", authctxt, authctxt->username, authctxt->supplicant);
++			}
++
++
++
+ 	if (authctxt->attempt++ == 0) {
+ 		/* setup auth context */
+ 		authctxt->pw = PRIVSEP(getpwnamallow(user));
+diff -r -u ../openssh-5.5p1//monitor.c openssh-5.5p1/monitor.c
+--- ../openssh-5.5p1//monitor.c	2010-03-07 04:05:17.000000000 -0800
++++ openssh-5.5p1/monitor.c	2010-07-12 21:36:42.357109400 -0700
+@@ -1024,9 +1024,10 @@
+ 
+ 	if (key != NULL && authctxt->valid) {
+ 		switch (type) {
+-		case MM_USERKEY:
++		case MM_USERKEY:			
++			debug2("Lesse (mm_answer) : %x %s %s", authctxt, authctxt->username, authctxt->supplicant);
+ 			allowed = options.pubkey_authentication &&
+-			    user_key_allowed(authctxt->pw, key);
++			    user_key_allowed(authctxt, key);
+ 			auth_method = "publickey";
+ 			if (options.pubkey_authentication && allowed != 1)
+ 				auth_clear_options();

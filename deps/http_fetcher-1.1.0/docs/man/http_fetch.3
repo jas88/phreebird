@@ -1,0 +1,30 @@
+.TH "HTTP Fetcher" "3" "May 2, 2004" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_fetch\fR \- Downloads a file via HTTP.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBint http_fetch(const char *\fR\fIurl\fR\fB, char **\fR\fIfileBuf\fR);
+.br 
+.SH "DESCRIPTION"
+.LP 
+Download the file located at \fIurl\fR.  Memory is allocated to hold the file, and is pointed to by \fIfileBuf\fR.  A terminating NULL will be appended to the data.
+
+\fIurl\fR is a string in the following format: <http://>host<:port></path>.  Portions enclosed in "<>" are optional.  If no port is specified, port 80 is assumed.
+
+If you pass NULL for \fIfileBuf\fR, \fIurl\fR will be requested but will not remain in memory (useful for simply registering a hit).
+.SH "RETURN VALUE"
+.LP 
+On success, \fBhttp_fetch\fR returns the number of bytes of data downloaded (HTTP metadata and terminating NULL not included, so the actual size of the allocated buffer will be the return value + 1).
+
+On error, \-1 is returned, and \fBhttp_perror\fR can be used to print an informative error message.  \fBhttp_strerror\fR can be used to get a pointer to the current error description message.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_setUserAgent\fR(3), \fBhttp_setReferer\fR(3), \fBhttp_setTimeout\fR(3), 
+.br
+\fBhttp_setRedirects\fR(3), \fBhttp_parseFilename\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

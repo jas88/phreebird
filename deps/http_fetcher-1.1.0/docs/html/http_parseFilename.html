@@ -1,0 +1,55 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_parseFilename</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h3>
+HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>
+NAME</h2>
+<b>http_parseFilename</b> - Takes a URL and parses out the filename from
+it.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>int http_parseFilename(const char *</b><i>url</i><b>, char **</b><i>filename</i>);
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+Takes a URL and determines the filename at the end of it. If there is one,
+memory is allocated to hold the string and is pointed to by <i>filename</i>.
+<p>For example, in "<a href="http://www.foo.com/bar/fubar.html">http://www.foo.com/bar/fubar.html</a>"
+the filename would be "fubar.html".
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+Returns 0 on success.
+<p>Returns 1 when there is no end filename, for instance "<a href="http://www.foo.com">www.foo.com</a>"
+or "<a href="http://www.bar.org">www.bar.org</a>/" in which case <i>filename</i>
+should NOT be assumed to be a valid pointer.
+<p>On error, -1 is returned, and <b><a href="http_perror.html">http_perror</a></b>can
+be used to print an informative error message. <b><a href="http_strerror.html">http_strerror</a></b>
+can be used to get a pointer to the current error description message.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+<b><a href="http_fetch.html">http_fetch</a></b>(3), 
+<b><a href="http_setUserAgent.html">http_setUserAgent</a></b>(3), 
+<b><a href="http_setReferer.html">http_setReferer</a></b>(3), 
+<b><a href="http_setTimeout.html">http_setTimeout</a></b>(3), 
+<a href="http_setRedirects.html"><b>http_setRedirects</b></a>(3), 
+<b><a href="http_perror.html">http_perror</a></b>(3), 
+<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

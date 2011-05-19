@@ -1,0 +1,28 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_setTimeout\fR \- Changes the maximum amount of time HTTP Fetcher will wait on data.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBvoid http_setTimeout(int \fR\fIseconds\fR\fB);
+.br 
+.SH "DESCRIPTION"
+.LP 
+HTTP Fetcher will wait \fIseconds\fR until timing out.  The default value is 30 seconds.  If the timeout value elapses without more data from the server, \fBhttp_fetch\fR will return with an error.
+
+If you pass a value less than 0, reads will not time out.
+.SH "RETURN VALUE"
+.LP 
+\fBhttp_setTimeout\fR returns no value and should always
+.br 
+succeed.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_fetch\fR(3), \fBhttp_setUserAgent\fR(3), \fBhttp_setReferer\fR(3), 
+.br
+\fBhttp_setRedirects\fR(3), \fBhttp_parseFilename\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

@@ -1,0 +1,26 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_perror\fR \- Print an error message.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBvoid http_perror(const char *\fR\fIstring\fR\fB);
+.br 
+.SH "DESCRIPTION"
+.LP 
+Prints an informative error message to standard error regarding the most recent error encountered within an HTTP Fetcher call.
+
+Any HTTP Fetcher function that returns \-1 can be
+.br 
+investigated by using \fIhttp_perror\fR.
+
+The argument \fIstring\fR is printed first, then a colon and a blank, then a message followed by a newline.  To be of most use, the argument string should include the name of the function that incurred the error.
+.SH "RETURN VALUE"
+.LP 
+Returns no value.
+.SH "SEE ALSO"
+.LP 
+ \fBhttp_strerror\fR(3)

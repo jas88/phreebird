@@ -1,0 +1,54 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_setRedirects</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h3>
+HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>NAME</h2>
+<b>http_setRedirects</b> - Sets the number of HTTP redirects HTTP Fetcher will
+automatically follow.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>void http_setRedirects(int </b><i>redirects</i><b>);</b>
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+When HTTP Fetcher receives a response header with a status code of 3XX, it will 
+automatically follow the associated 'Location:' field, if any.  <i>redirects</i> 
+is the maximum number of redirects to follow before returning an error.
+
+<p>To disable redirects, pass a 0.  The default is to follow 3 redirects.
+
+<p>Under this implementation (which is just a stopgap, really) the caller won't 
+be aware of any redirection and will assume the returned document came from the
+original URL it requested.  Future releases (2.x.x) will improve on this poor
+design.
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+<b>http_setRedirects</b> returns no value and should always succeed.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+<b><a href="http_fetch.html">http_fetch</a></b>(3), 
+<b><a href="http_setUserAgent.html">http_setUserAgent</a></b>(3), 
+<b><a href="http_setReferer.html">http_setReferer</a></b>(3), 
+<b><a href="http_setTimeout.html">http_setTimeout</a></b>(3), 
+<b><a href="http_parseFilename.html">http_parseFilename</a></b>(3), 
+<b><a href="http_perror.html">http_perror</a></b>(3), 
+<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

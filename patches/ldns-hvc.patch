@@ -1,0 +1,257 @@
+Only in phreebird/ldns-1.6.5: .rr.c.swp
+Only in phreebird/ldns-1.6.5: Makefile
+Only in phreebird/ldns-1.6.5: config.log
+Only in phreebird/ldns-1.6.5: config.status
+Only in phreebird/ldns-1.6.5/drill: Makefile
+Only in phreebird/ldns-1.6.5/drill: config.h
+diff -u -r ldns-1.6.5/drill/drill.c phreebird/ldns-1.6.5/drill/drill.c
+--- ldns-1.6.5/drill/drill.c	2010-04-16 05:52:52.000000000 -0700
++++ phreebird/ldns-1.6.5/drill/drill.c	2010-08-09 22:36:49.000000000 -0700
+@@ -136,6 +136,7 @@
+ 	bool		qfallback;
+ 	bool		qds;
+ 	bool		qusevc;
++	bool		qusehvc;
+ 	bool 		qrandom;
+ 	
+ 	char		*resolv_conf_file = NULL;
+@@ -189,7 +190,7 @@
+ 	/* global first, query opt next, option with parm's last
+ 	 * and sorted */ /*  "46DITSVQf:i:w:q:achuvxzy:so:p:b:k:" */
+ 	                               
+-	while ((c = getopt(argc, argv, "46ab:c:d:Df:hi:Ik:o:p:q:Qr:sStTuvV:w:xy:z")) != -1) {
++	while ((c = getopt(argc, argv, "46ab:c:d:Df:hi:Ik:o:p:q:Qr:sStTuvV:w:xy:zH")) != -1) {
+ 		switch(c) {
+ 			/* global options */
+ 			case '4':
+@@ -267,6 +268,9 @@
+ 			case 't':
+ 				qusevc = true;
+ 				break;
++			case 'H':
++				qusehvc = true;
++				break;
+ 			case 'k':
+ 				status = read_key_file(optarg, key_list);
+ 				if (status != LDNS_STATUS_OK) {
+@@ -493,6 +497,7 @@
+ 			ldns_resolver_set_ip6(cmdline_res, qfamily);
+ 			ldns_resolver_set_fallback(cmdline_res, qfallback);
+ 			ldns_resolver_set_usevc(cmdline_res, qusevc);
++			ldns_resolver_set_usehvc(cmdline_res, qusehvc);
+ 
+ 			cmdline_dname = ldns_dname_new_frm_str(serv);
+ 
+@@ -533,6 +538,7 @@
+ 	ldns_resolver_set_ip6(res, qfamily);
+ 	ldns_resolver_set_fallback(res, qfallback);
+ 	ldns_resolver_set_usevc(res, qusevc);
++	ldns_resolver_set_usehvc(res, qusehvc);
+ 	ldns_resolver_set_random(res, qrandom);
+ 	if (qbuf != 0) {
+ 		ldns_resolver_set_edns_udp_size(res, qbuf);
+Only in phreebird/ldns-1.6.5/drill: drill.h
+Only in phreebird/ldns-1.6.5/drill: org
+Only in phreebird/ldns-1.6.5/drill: org.hints
+Only in phreebird/ldns-1.6.5/drill: root.hints
+Only in phreebird/ldns-1.6.5/examples: Makefile
+Only in phreebird/ldns-1.6.5/examples: config.h
+Only in phreebird/ldns-1.6.5/examples: config.log
+Only in phreebird/ldns-1.6.5/examples: config.status
+diff -u -r ldns-1.6.5/ldns/net.h.in phreebird/ldns-1.6.5/ldns/net.h.in
+--- ldns-1.6.5/ldns/net.h.in	2009-10-05 03:52:51.000000000 -0700
++++ phreebird/ldns-1.6.5/ldns/net.h.in	2010-08-09 04:40:17.000000000 -0700
+@@ -82,6 +82,20 @@
+  * \param[in] query_pkt the query to send
+  * \return status
+  */
++
++ldns_status ldns_http_send(uint8_t **result, ldns_buffer *qbin, const struct sockaddr_storage *to, socklen_t tolen, struct timeval timeout, size_t *answersize);
++
++/**
++ * Sends ptk to the nameserver at the resolver object via http. Returns the data
++ * as bytes at result
++ * 
++ * \param[out] pkt packet received from the nameserver
++ * \param[in] r the resolver to use 
++ * \param[in] query_pkt the query to send
++ * \return status
++ */
++
++
+ ldns_status ldns_send(ldns_pkt **pkt, ldns_resolver *r, const ldns_pkt *query_pkt);
+ 
+ /**
+diff -u -r ldns-1.6.5/ldns/resolver.h phreebird/ldns-1.6.5/ldns/resolver.h
+--- ldns-1.6.5/ldns/resolver.h	2010-06-02 01:56:17.000000000 -0700
++++ phreebird/ldns-1.6.5/ldns/resolver.h	2010-08-09 05:16:09.000000000 -0700
+@@ -95,6 +95,8 @@
+ 	ldns_rr_list * _dnssec_anchors;
+ 	/**  Whether to use tcp or udp (tcp if the value is true)*/
+ 	bool _usevc;
++	/**  Whether to use HTTP instead of TCP or UDP (http if the value is true)*/
++	bool _usehvc;
+ 	/**  Whether to ignore the tc bit */
+ 	bool _igntc;
+ 	/**  Whether to use ip6, 0->does not matter, 1 is IPv4, 2 is IPv6 */
+@@ -202,6 +204,12 @@
+  */
+ bool ldns_resolver_usevc(const ldns_resolver *r);
+ /**
++ * Does the resolver use http
++ * \param[in] r the resolver
++ * \return true: http, false: tcp/udp
++ */
++bool ldns_resolver_usehvc(const ldns_resolver *r);
++/**
+  * Does the resolver only try the first nameserver
+  * \param[in] r the resolver
+  * \return true: yes, fail, false: no, try the others
+@@ -410,6 +418,14 @@
+ void ldns_resolver_set_usevc(ldns_resolver *r, bool b);
+ 
+ /**
++ * Whether the resolver uses a HTTP virtual circuit (HTTP)
++ * \param[in] r the resolver
++ * \param[in] b true: use HTTP, false: don't use HTTP
++ */
++void ldns_resolver_set_usehvc(ldns_resolver *r, bool b);
++
++
++/**
+  * Whether the resolver uses the searchlist
+  * \param[in] r the resolver
+  * \param[in] b true: use the list, false: don't use the list
+Only in phreebird/ldns-1.6.5: ldns-1.6.5-http.tgz
+Only in ldns-1.6.5: ltmain.sh
+diff -u -r ldns-1.6.5/net.c phreebird/ldns-1.6.5/net.c
+--- ldns-1.6.5/net.c	2010-04-01 01:17:25.000000000 -0700
++++ phreebird/ldns-1.6.5/net.c	2010-08-09 22:35:48.000000000 -0700
+@@ -31,6 +31,10 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ 
++//for HTTP Fetcher
++#include <http_fetcher.h>
++
++
+ ldns_status
+ ldns_send(ldns_pkt **result_packet, ldns_resolver *r, const ldns_pkt *query_pkt)
+ {
+@@ -134,7 +138,18 @@
+ 					break;
+ 				}
+ 			}
+-		} else {
++		}else if (1== ldns_resolver_usehvc(r)) {
++			for (retries = ldns_resolver_retry(r); retries > 0; retries--) {
++				send_status = 
++					ldns_http_send(&reply_bytes, qb, ns, 
++					(socklen_t)ns_len, ldns_resolver_timeout(r), 
++					&reply_size);
++				if (send_status == LDNS_STATUS_OK) {
++					break;
++				}
++			}
++		}
++		else {
+ 			for (retries = ldns_resolver_retry(r); retries > 0; retries--) {
+ 				/* ldns_rdf_print(stdout, ns_array[i]); */
+ 				send_status = 
+@@ -625,6 +640,44 @@
+ 	return LDNS_STATUS_OK;
+ }
+ 
++ldns_status
++ldns_http_send(uint8_t **result,  ldns_buffer *qbin, const struct sockaddr_storage *to, 
++		socklen_t tolen, struct timeval timeout, size_t *answer_size)
++{
++	int sockfd;
++	uint8_t *answer;
++	char *filename = NULL;
++	char typebuf[70];
++	int lg,ret;
++	char buf[512];
++	uint8_t b64_query[512];
++	struct sockaddr_in *addr;
++	char *reply;
++	int replylen=0;
++	
++	ldns_b64_ntop((char *)qbin->_data, qbin->_position, b64_query, sizeof(b64_query));	
++
++	// XXX we're just going to assume it's an IPv4 addr for now -- add IPv6 support 
++
++	addr = (struct sockaddr_in *)to; 	
++	
++	snprintf(buf, sizeof(buf), "http://%s/.well-known/dns-http?v=1&q=%s", inet_ntoa(addr->sin_addr), b64_query);
++
++	http_setTimeout(timeout.tv_sec);
++	http_setRedirects(8); // XXX arbitrary but should be nonzero.  should also be cached.  should ALSO be keepalive'ing the connection :)
++	replylen = http_fetch(buf, &reply);
++	
++	*result = reply;
++	*answer_size = replylen;
++
++	if(replylen<1){ return LDNS_STATUS_NETWORK_ERR; }
++
++	// expectation is that caller will free reply
++
++	return LDNS_STATUS_OK;
++}
++
++
+ int
+ ldns_tcp_bgsend(ldns_buffer *qbin, const struct sockaddr_storage *to, socklen_t tolen, 
+ 		struct timeval timeout)
+Only in phreebird/ldns-1.6.5/packaging: ldns-config
+Only in phreebird/ldns-1.6.5/packaging: libldns.pc
+diff -u -r ldns-1.6.5/resolver.c phreebird/ldns-1.6.5/resolver.c
+--- ldns-1.6.5/resolver.c	2010-05-18 08:01:39.000000000 -0700
++++ phreebird/ldns-1.6.5/resolver.c	2010-08-09 04:28:13.000000000 -0700
+@@ -15,6 +15,10 @@
+ #include <ldns/ldns.h>
+ #include <strings.h>
+ 
++// HTTP lib
++#include <http_lib.h>
++
++
+ /* Access function for reading
+  * and setting the different Resolver
+  * options */
+@@ -167,6 +171,13 @@
+ 	return r->_usevc;
+ }
+ 
++bool
++ldns_resolver_usehvc(const ldns_resolver *r)
++{
++	return r->_usehvc;
++}
++
++
+ size_t *
+ ldns_resolver_rtt(const ldns_resolver *r)
+ {
+@@ -394,6 +405,13 @@
+ }
+ 
+ void
++ldns_resolver_set_usehvc(ldns_resolver *r, bool hvc)
++{
++	r->_usehvc = hvc;
++}
++
++
++void
+ ldns_resolver_set_debug(ldns_resolver *r, bool d)
+ {
+ 	r->_debug = d;
+@@ -582,6 +600,7 @@
+ 	ldns_resolver_set_searchlist_count(r, 0);
+ 	ldns_resolver_set_nameserver_count(r, 0);
+ 	ldns_resolver_set_usevc(r, 0);
++	ldns_resolver_set_usehvc(r, 0);
+ 	ldns_resolver_set_port(r, LDNS_PORT);
+ 	ldns_resolver_set_domain(r, NULL);
+ 	ldns_resolver_set_defnames(r, false);

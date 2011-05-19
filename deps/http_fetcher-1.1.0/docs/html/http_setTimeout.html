@@ -1,0 +1,49 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_setTimeout</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h3>
+HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>NAME</h2>
+<b>http_setTimeout</b> - Changes the maximum amount of time HTTP Fetcher
+will wait on data.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>void http_setTimeout(int </b><i>seconds</i><b>);</b>
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+HTTP Fetcher will wait <i>seconds</i> until timing out. The default value
+is 30 seconds. If the timeout value elapses without more data from the
+server, <a href="http_fetch.html"><b>http_fetch</b> </a>will return with
+an error.
+<p>If you pass a value less than 0, reads will not time out.
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+<b>http_setTimeout</b> returns no value and should always succeed.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+<b><a href="http_fetch.html">http_fetch</a></b>(3), 
+<b><a href="http_setUserAgent.html">http_setUserAgent</a></b>(3),
+<b><a href="http_setReferer.html">http_setReferer</a></b>(3), 
+<b><a href="http_setRedirects.html"><b>http_setRedirects</a></b>(3), 
+<b><a href="http_parseFilename.html">http_parseFilename</a></b>(3), 
+<b><a href="http_perror.html">http_perror</a></b>(3), 
+<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

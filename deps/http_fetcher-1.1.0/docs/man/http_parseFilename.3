@@ -1,0 +1,30 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_parseFilename\fR \- Takes a URL and parses out the filename from it.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBint http_parseFilename(const char *\fR\fIurl\fR\fB, char **\fR\fIfilename\fR);
+.br 
+.SH "DESCRIPTION"
+.LP 
+Takes a URL and determines the filename at the end of it.  If there is one, memory is allocated to hold the string and is pointed to by \fIfilename\fR.
+
+For example, in "http://www.foo.com/bar/fubar.html" the filename would be "fubar.html".
+.SH "RETURN VALUE"
+.LP 
+Returns 0 on success.
+
+Returns 1 when there is no end filename, for instance "www.foo.com" or "www.bar.org/" in which case \fIfilename\fR should NOT be assumed to be a valid pointer.
+
+On error, \-1 is returned, and \fBhttp_perror\fR can be used to print an informative error message.  \fBhttp_strerror\fR can be used to get a pointer to the current error description message.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_fetch\fR(3), \fBhttp_setUserAgent\fR(3), \fBhttp_setReferer\fR(3),
+.br
+\fBhttp_setTimeout\fR(3), \fBhttp_setRedirects\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

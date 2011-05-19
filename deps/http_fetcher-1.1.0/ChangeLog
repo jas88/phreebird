@@ -1,0 +1,38 @@
+See the CREDITS file for information about contributors
+
+1.1.0 - FIXME - Date here before release
+	* Added the ability to transparently follow HTTP redirects, configurable
+		with the new http_setRedirects() function.
+    * Replaced direct reference to sys_errlist with a call to strerror, which
+        allows the library to build on NetBSD.
+    * Changed configure.in to configure.ac.  Autoconf seems to be happier.
+    * Made the html docs a little less ugly.
+
+1.0.3 - October 14, 2003
+    * Added support for ports other than 80
+    * HTTP control structures use RFC 1945 compliant linebreaks
+    * Fixed bug where server response values with leading 0's were read as octal
+    * Fixed error in timeout logic that prevented connections from actually
+        timing out
+    * Fixed possible realloc() related memory leak
+    * Data is now NULL terminated for safety
+    
+1.0.2 - April 22, 2003
+    * Fixed a buffer overflow (reported to BugTraq, see
+        http://www.securityfocus.com/bid/6531/info/) and a memory leak.
+    * Check for hstrerror and provide workaround if not present.
+    * Portability improvements, build process checks for necessary
+        functions.
+    * Includes specfile for building rpm packages.
+    * Includes http-fetcher.m4 macro file for inclusion with autoconf
+
+1.0.1 - July 30, 2001
+    * Requests now include a "Host:" field to satisfy servers running virtual
+        domains (who would otherwise return a 404).  Thanks for the help,
+        zealot!
+    * Libtool/project versioning also sorted out.
+
+1.0.0 - July 4, 2001
+    * Initial release.
+
+

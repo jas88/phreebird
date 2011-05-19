@@ -1,0 +1,18 @@
+
+1.02
+Fixed silly bug where do_sign returned an unallocated value, thus breaking NSEC3
+(thanks, @seiho_tandoku)
+Correct version strings in compiled apps
+
+
+1.01
+Initial cleanup of memory handling.  Boehm looks pretty good right about now.
+Better UI for -g option (keygen)
+rpath to force linked binaries to look in /usr/local/bin.  Messy
+Correct package synthesis
+Cheap hack to autobuild deps from included source
+Couple fixes as requested by Javantea 
+(http://www.cell-game.com/page/jav_blog/55)
+
+1.0
+Initial Release

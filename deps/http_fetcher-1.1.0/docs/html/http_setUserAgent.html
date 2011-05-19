@@ -1,0 +1,56 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_setUserAgent</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h3>
+HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>NAME</h2>
+<b>http_setUserAgent</b> - Changes the User Agent shown to the server during
+an HTTP GET request.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>int http_setUserAgent(const char *</b><i>newAgent</i><b>);</b>
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+The User Agent field of an HTTP request tells the server what software
+is making the request. By default, "HTTP Fetcher/VERSION" is sent.
+<p>Calling <b>http_setUserAgent</b> will change the default User Agent
+to <i>newAgent</i> for subsequent requests (until the next call to <b>http_setUserAgent</b>).
+<p>If you pass in <b>NULL</b> as an argument, HTTP Fetcher will NOT give
+the server a User Agent.
+<p>This function is useful for mimicing a browser, deceiving the webserver,
+or a number of other creative uses.
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+On success, <b>http_setUserAgent</b> returns 0.
+<p>On error, -1 is returned, and the previous value of
+<br><i>userAgent</i> is unchanged. <b><a href="http_perror.html">http_perror</a></b>
+can be used to print an informative error message. <a href="http_strerror.html"><b>http_strerror</b>
+</a>can be used to get a pointer to the current error description message.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+<b><a href="http_fetch.html">http_fetch</a></b>(3), 
+<b><a href="http_setReferer.html">http_setReferer</a></b>(3), 
+<b><a href="http_setTimeout.html">http_setTimeout</a></b>(3), 
+<b><a href="http_setRedirects.html"><b>http_setRedirects</a></b>(3), 
+<b><a href="http_parseFilename.html">http_parseFilename</a></b>(3), 
+<b><a href="http_perror.html">http_perror</a></b>(3), 
+<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

@@ -1,0 +1,26 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_strerror\fR \- Returns a pointer to the current error description message.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBconst char *http_strerror();
+.br 
+.SH "DESCRIPTION"
+.LP 
+Returns a pointer to the current error description message regarding the most recent error encountered within an HTTP Fetcher call.
+
+Any HTTP Fetcher function that returns \-1 can be
+.br 
+investigated by using \fIhttp_strerror\fR.
+
+The message pointed to is only guaranteed to be valid until the next call to \fBhttp_strerror\fR, so if you need to preserve the message you should make a copy of it.
+.SH "RETURN VALUE"
+.LP 
+Returns a pointer to a descriptive error message.
+.SH "SEE ALSO"
+.LP 
+ \fBhttp_perror\fR(3)

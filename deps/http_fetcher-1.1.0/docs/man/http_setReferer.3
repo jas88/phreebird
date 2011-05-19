@@ -1,0 +1,32 @@
+.TH "HTTP Fetcher" "3" "June 26, 2001" "Lyle Hanson" "HTTP Fetcher API"
+.SH "NAME"
+.LP 
+\fBhttp_setReferer\fR \- Sets the Referer shown to the server during an HTTP GET request.
+.SH "SYNOPSIS"
+.LP 
+\fB#include <http_fetcher.h>\fR
+.br 
+.LP 
+\fBint http_setReferer(const char *\fR\fInewReferer\fR\fB);
+.br 
+.SH "DESCRIPTION"
+.LP 
+The Referer field of an HTTP request tells the server what URL referred you to the current URL being requested.  By default, no Referer is sent.
+
+Calling \fBhttp_setReferer\fR will cause \fInewReferer\fR to be sent as the Referer for subsequent requests (until the next call to \fBhttp_setReferer\fR).
+
+If you pass in \fBNULL\fR as an argument, HTTP Fetcher will NOT give the server a Referer.
+.SH "RETURN VALUE"
+.LP 
+On success, \fBhttp_setReferer\fR returns 0.
+
+On error, \-1 is returned, and the previous value of
+.br 
+Referer is unchanged.  \fBhttp_perror\fR can be used to print an informative error message.  \fBhttp_strerror\fR can be used to get a pointer to the current error description message.
+.SH "SEE ALSO"
+.LP 
+\fBhttp_fetch\fR(3), \fBhttp_setUserAgent\fR(3), \fBhttp_setTimeout\fR(3), 
+.br
+\fBhttp_setRedirects\fR(3), \fBhttp_parseFilename\fR(3), \fBhttp_perror\fR(3), 
+.br
+\fBhttp_strerror\fR(3)

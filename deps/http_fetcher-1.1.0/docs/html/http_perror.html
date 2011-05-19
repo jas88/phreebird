@@ -1,0 +1,42 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_perror</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center><h3>HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>NAME</h2>
+<b>http_perror</b> - Print an error message.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>void http_perror(const char *</b><i>string</i><b>);</b>
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+Prints an informative error message to standard error regarding the most
+recent error encountered within an HTTP Fetcher call.
+<p>Any HTTP Fetcher function that returns -1 can be investigated by using
+<b>http_perror</b>.
+<p>The argument <i>string</i> is printed first, then a colon and a blank,
+then a message followed by a newline. To be of most use, the argument string
+should include the name of the function that incurred the error.
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+Returns no value.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+&nbsp;<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

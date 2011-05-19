@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ -f ./phreeload.so ]; then
+	LD_PRELOAD=./phreeload.so $*;
+	exit $?
+fi
+
+if [ -f ./lib/phreeload.so ]; then
+	LD_PRELOAD=lib/phreeload.so $*;
+	exit $?
+fi
+
+if [ -f /usr/local/lib/phreeload.so ]; then
+	LD_PRELOAD=/usr/local/lib/phreeload.so $*;
+	exit $?
+fi
+

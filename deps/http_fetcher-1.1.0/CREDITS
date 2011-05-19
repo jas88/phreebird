@@ -1,0 +1,55 @@
+CREDITS
+=======
+The following people deserve credit for helping the project along.  I really
+do appreciate everybody's bug reports, patches, ideas, complaints, and praise.
+
+I've broken contributions down into the release that the contribution was first
+incorporated into.
+
+
+1.0.4
+=====
+
+    Dean Wilder (dwil@esinet.net)
+        - supplied patch that served as basis for redirect support
+
+
+1.0.3
+=====
+
+    Dean Wilder (dwil@esinet.net)
+        - supplied patch to add functionality for ports other than 80
+        - reported bug where server response values with leading 0's were
+          being interpreted as octal values
+        - asked for clarification of NULL termination of data
+
+    Christoph Kukulies (kuku@physik.rwth-aachen.de)
+        - reported connection hang that resulted from non-RFC-compliant
+          HTTP linebreaks
+
+
+1.0.2
+=====
+
+    dong-h0un yoU (xploit@hackermail.com)
+        - pointed out buffer overflow problem and issued BugTraq advisory (!?)
+          (http://www.securityfocus.com/bid/6531/info/)
+
+    Luiz Felipe Ceglia (lceglia@terenet.com.br)
+        - reported hstrerror problem (not available in libc5)
+
+
+1.0.1
+=====
+
+    Steven Augart (steve@augart.com)
+        - Solaris porting, (LOTS of) miscellaneous help
+
+    Vikram (aragorn@infofin.com)
+        - .deb packages
+
+    sun (candy@camelos.org)
+        - help with building .rpm packages
+
+
+Thanks a lot!

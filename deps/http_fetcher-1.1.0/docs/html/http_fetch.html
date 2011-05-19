@@ -1,0 +1,52 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.17 i686) [Netscape]">
+   <title>http_fetch</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h3>
+HTTP Fetcher Library Documentation</h3></center>
+<a href="../index.html">Return to Main</a>
+<hr>
+
+<h2>NAME</h2>
+<b>http_fetch</b> - Downloads a file via HTTP.
+<br>&nbsp;
+<h2>
+SYNOPSIS</h2>
+<b>#include &lt;http_fetcher.h></b>
+<p><b>int http_fetch(const char *</b><i>url</i><b>, char **</b><i>fileBuf</i>);
+<br>&nbsp;
+<h2>
+DESCRIPTION</h2>
+Download the file located at <i>url</i>. Memory is allocated to hold the
+file, and is pointed to by <i>fileBuf</i>.  A terminating NULL will be appended to the data.
+<p><i>url</i> is a string in the following format: &lt;http://&gt;host&lt;:port&gt;&lt;/path&gt;.  Portions enclosed in "&lt;&gt;" are optional.  If no port is specified, port 80 is assumed.
+<p>If you pass NULL for <i>fileBuf</i>, <i>url</i> will be requested
+but will not remain in memory (useful for simply registering a hit).
+<br>&nbsp;
+<h2>
+RETURN VALUE</h2>
+On success, <b>http_fetch</b> returns the number of bytes of data downloaded
+(HTTP metadata and terminating NULL not included, so the actual size of the allocated buffer will be the return value + 1).
+<p>On error, -1 is returned, and <b><a href="http_perror.html">http_perror</a></b>
+can be used to print an informative error message. <b><a href="http_strerror.html">http_strerror</a></b>
+can be used to get a pointer to the current error description message.
+<br>&nbsp;
+<h2>
+SEE ALSO</h2>
+<b><a href="http_setUserAgent.html">http_setUserAgent</a></b>(3), 
+<b><a href="http_setReferer.html">http_setReferer</a></b>(3), 
+<b><a href="http_setTimeout.html">http_setTimeout</a></b>(3), 
+<b><a href="http_setRedirects.html">http_setRedirects</a></b>(3), 
+<b><a href="http_parseFilename.html">http_parseFilename</a></b>(3), 
+<b><a href="http_perror.html">http_perror</a></b>(3), 
+<b><a href="http_strerror.html">http_strerror</a></b>(3)
+<p>
+<hr><a href="../index.html">Return to Main</a>
+</body>
+</html>

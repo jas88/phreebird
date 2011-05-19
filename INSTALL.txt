@@ -1,0 +1,5 @@
+No configure script (yet). Quite a few dependencies, though -- cd into deps and 
+install.
+
+Just for giggles, added depbuild.sh.  Run "make phreebird_deps".  No promises.
+

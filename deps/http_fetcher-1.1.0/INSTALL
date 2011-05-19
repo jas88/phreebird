@@ -1,0 +1,22 @@
+INSTALLATION
+============
+From the main HTTP Fetcher directory, type:
+	
+	1) ./configure
+	2) make
+		then, as root...
+	3) make install
+
+That's it.  The library should then be located in /usr/local/lib/, and the
+header should be in /usr/local/include (unless you specified a different
+prefix).
+
+If you don't have root on the machine, you can install the package in your
+home directory.  For step 1, do "./configure --prefix=YOUR_PATH" where
+YOUR_PATH is the directory under which you'd like to install the package.
+
+To uninstall (from the main http_fetcher source distribution directory), type
+	make uninstall
+
+
+Lyle Hanson (lhanson@users.sourceforge.net)
