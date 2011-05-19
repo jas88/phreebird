@@ -2,7 +2,19 @@ VERSION=1.02
 CC=gcc -Ldeps/lib -Ideps/include -O2 -g -DPB_VERSION="\"$(VERSION)\""
 INSTALLDIR=/usr/local
 
+.PHONY: deps
+
 all: phreebird phreeload ldns_chase unbound_trace
+
+deps:
+	( cd deps/ldns-1.6.5 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	$(MAKE) -C deps/ldns-1.6.5 all install
+	( cd deps/libevent-2.0.1-alpha && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	$(MAKE) -C deps/libevent-2.0.1-alpha all install
+	( cd deps/libghthash-0.6.2 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	$(MAKE) -C deps/libghthash-0.6.2 all install
+	( cd deps/unbound-1.4.3 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	$(MAKE) -C deps/unbound-1.4.3 all install
 
 bin:
 	mkdir bin
