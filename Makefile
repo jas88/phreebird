@@ -43,9 +43,6 @@ package:
 	tar czvf phreebird_suite_$(VERSION).tar.gz phreebird_suite_$(VERSION)
 	rm -rf phreebird_suite_$(VERSION) 
 
-phreebird_deps:
-	sh depbuild.sh
-
 install: all
 	cp bin/phreebird bin/phreeload bin/ldns_chase bin/unbound_trace $(INSTALLDIR)/bin;
 	cp lib/phreeload.so $(INSTALLDIR)/lib;
@@ -55,5 +52,11 @@ uninstall: all
 	rm $(INSTALLDIR)/lib/phreeload.so
 
 clean:
-	rm -rf bin
-	rm -rf lib
+	$(RM) -r bin lib
+
+depclean:
+	$(RM) -r deps/{sbin,share,lib,bin,etc,include}
+	$(MAKE) -C deps/libevent-2.0.11-stable clean
+	$(MAKE) -C deps/unbound-1.4.3 clean
+	$(MAKE) -C deps/ldns-1.6.5 clean
+	$(MAKE) -C deps/libghthash-0.6.2 clean
