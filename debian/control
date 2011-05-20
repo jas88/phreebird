@@ -1,0 +1,15 @@
+Source: phreebird-dnssec
+Section: unknown
+Priority: extra
+Maintainer: James A Sutherland <james@deadnode.org>
+Build-Depends: debhelper (>= 7.0.50~), libssl-dev, zlib1g-dev
+Standards-Version: 3.8.4
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: git://git.debian.org/collab-maint/phreebird-dnssec.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/phreebird-dnssec.git;a=summary
+
+Package: phreebird-dnssec
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
