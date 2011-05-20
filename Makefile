@@ -13,8 +13,8 @@ deps:
 	$(MAKE) -C deps/libevent-2.0.11-stable all install
 	( cd deps/libghthash-0.6.2 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
 	$(MAKE) -C deps/libghthash-0.6.2 all install
-	( cd deps/unbound-1.4.3 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
-	$(MAKE) -C deps/unbound-1.4.3 all install
+	( cd deps/unbound-1.4.9 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	$(MAKE) -C deps/unbound-1.4.9 all install
 
 bin:
 	mkdir bin
@@ -57,6 +57,6 @@ clean:
 depclean:
 	$(RM) -r deps/{sbin,share,lib,bin,etc,include}
 	$(MAKE) -C deps/libevent-2.0.11-stable clean
-	$(MAKE) -C deps/unbound-1.4.3 clean
+	$(MAKE) -C deps/unbound-1.4.9 clean
 	$(MAKE) -C deps/ldns-1.6.5 clean
 	$(MAKE) -C deps/libghthash-0.6.2 clean
