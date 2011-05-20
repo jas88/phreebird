@@ -37,6 +37,8 @@
 #include <err.h>
 #include <evhttp.h>
 
+#include <pwd.h>
+
 /* for OpenSSL, specifically so we can +1/-1 NSEC3 White Lies */
 #include <openssl/bn.h>
 
@@ -62,6 +64,9 @@ struct phreebird_opts_struct
 	// for TCP
 	int listensock;
 	
+	// Reduced-privilege additions, JS 2011-05-20:
+	char *chroot;
+	uid_t uid;
 };
 typedef struct phreebird_opts_struct phreebird_opts;
 
@@ -166,8 +171,23 @@ int main(int argc, char **argv){
 
 	set_defaults(opts);
 
-	while ((c = getopt(argc, argv, "k:gdb:?m:l:")) != -1) {
+	while ((c = getopt(argc, argv, "c:u:k:gdb:?m:l:")) != -1) {
 		switch (c){
+			case 'c':
+				if (!(opts->chroot=strdup(optarg)))
+					exit(255);
+				break;
+			case 'u':
+				{
+					struct passwd *pw;
+					pw=getpwnam(optarg);
+					if (!pw) {
+						perror("Lookup user ID to run as");
+						exit(255);
+					}
+					opts->uid=pw->pw_uid;
+				}
+				break;
 			case 'k':
 				LDNS_FREE(opts->dnskey_fname);
 				opts->dnskey_fname = strdup(optarg);
@@ -302,7 +322,7 @@ void set_defaults(phreebird_opts *opts){
 int init_udp_socket(unsigned short port){
 	int sock;
 	int yes = 1;
-	int bsize = 65536*64; // arbitrary
+	int bsize = 65536*1; // arbitrary
 	int len = sizeof(struct sockaddr);
 	struct sockaddr_in addr;
 	if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -370,6 +390,17 @@ int init_tcp_socket(unsigned short port){
 	
 }
 
+static void dropprivs(phreebird_opts *opts) {
+	if (opts->chroot && chroot(opts->chroot)==-1) {
+		perror("chroot");
+		exit(255);
+	}
+	if (opts->uid && setuid(opts->uid)==-1) {
+		perror("setuid");
+		exit(255);
+	}
+}
+
 // SECTION 6:  STUB HANDLERS
 
 
@@ -396,6 +427,9 @@ int execute_event_listener(phreebird_opts *opts){
 		//evhttp_set_gencb(httpd, stub_handler_HTTP, opts);
 		opts->httpd = httpd;
 		}
+		
+	dropprivs(opts);
+		
 	event_dispatch();
 	// never reached, but
 	return(0);
@@ -1350,6 +1384,8 @@ void do_help(){
 	fprintf(stdout, "WARNING:        THIS IS EXPERIMENTAL CODE THAT SHOULD NOT BE.\n");
 	fprintf(stdout, "                DEPLOYED ON PRODUCTION NETWORKS.  Yet.\n");
 	fprintf(stdout, "Options:\n");
+	fprintf(stdout, "  -c : Directory to chroot to before accepting requests\n");
+	fprintf(stdout, "  -u : Username to switch to before accepting requests\n");
 	fprintf(stdout, "  -k : Filename of private key (default: dns.key)\n");
 	fprintf(stdout, "  -l : IP address to listen on (default: 0.0.0.0)\n");
 	fprintf(stdout, "  -d : Activate debugging\n");
