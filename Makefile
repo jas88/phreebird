@@ -13,7 +13,7 @@ deps:
 	$(MAKE) -C deps/libevent-2.0.11-stable all install
 	( cd deps/libghthash-0.6.2 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
 	$(MAKE) -C deps/libghthash-0.6.2 all install
-	( cd deps/unbound-1.4.9 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	( cd deps/unbound-1.4.9 && ./configure --prefix=`pwd`/.. --disable-gost --with-ldns-builtin --enable-static --disable-shared )
 	$(MAKE) -C deps/unbound-1.4.9 all install
 
 bin:
@@ -26,7 +26,7 @@ phreebird: bin
 	$(CC) -o bin/phreebird phreebird.c -lldns -lcrypto -levent -lghthash $(EXTRA_LIBS)
 
 phreeload: bin lib
-	$(CC) -D_GNU_SOURCE -lunbound -lcrypto -ldl -Wall -shared -fPIC -o lib/phreeload.so phreeload.c -I /usr/local/ssl/include
+	$(CC) -D_GNU_SOURCE -lunbound -lcrypto -ldl -Wall -shared -fPIC -o lib/phreeload.so phreeload.c
 	cp phreeload bin
 
 ldns_chase: bin
