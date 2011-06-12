@@ -7,7 +7,7 @@ INSTALLDIR=/usr/local
 all: phreebird phreeload ldns_chase unbound_trace
 
 deps:
-	( cd deps/ldns-1.6.10 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
+	( cd deps/ldns-1.6.10 && ./configure --prefix=`pwd`/.. --disable-gost --enable-static --disable-shared )
 	$(MAKE) -C deps/ldns-1.6.10 all install
 	( cd deps/libevent-2.0.11-stable && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
 	$(MAKE) -C deps/libevent-2.0.11-stable all install
