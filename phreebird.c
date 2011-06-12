@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 /* sockets */
 #include <sys/types.h>
@@ -300,16 +301,16 @@ int setup_key(ldns_key *key){
 
 void cleanup(void) {
 	ldns_key *key;
-	while(key=ldns_key_list_pop_key(opts.keylist)) {
+	while(opts.keylist && (key=ldns_key_list_pop_key(opts.keylist))) {
 		ldns_key_deep_free(key);
 	}
-	ldns_key_deep_free(opts.key);
-	
-	if (opts.dnskey_fname) free(opts.dnskey_fname);
-	if (listen_name) free(listen_name);
-	ldns_key_list_free(opts.keylist);
+	if (opts.key)	ldns_key_deep_free(opts.key);
+	if (opts.dnskey_fname)	free(opts.dnskey_fname);
+	if (listen_name)	free(listen_name);
+	if (opts.keylist)	ldns_key_list_free(opts.keylist);
 	ght_finalize(opts.correlator);
 	ldns_rdf_deep_free(time_rdf);
+	CRYPTO_cleanup_all_ex_data();
 }
 
 
@@ -416,13 +417,18 @@ static void dropprivs(phreebird_opts *opts) {
 
 // SECTION 6:  STUB HANDLERS
 
+static void termhandler(int t)
+{
+	event_loopbreak();
+}
 
 int execute_event_listener(phreebird_opts *opts){
 
 	struct event rec_from_stub, rec_from_backend, rec_from_tcp;
 	struct evhttp *httpd;
+	struct event_base *eb=event_init();
 
-	event_init();
+	signal(SIGTERM,termhandler);
 	event_set(&rec_from_stub, opts->stubsock, EV_READ | EV_PERSIST, stub_handler_UDP, opts);
 	event_set(&rec_from_backend, opts->backsock, EV_READ | EV_PERSIST, backend_handler_UDP, opts);
 	event_set(&rec_from_tcp, opts->listensock, EV_READ | EV_PERSIST, stub_handler_TCP, opts);
@@ -444,9 +450,8 @@ int execute_event_listener(phreebird_opts *opts){
 	dropprivs(opts);
 
 	event_dispatch();
-	// never reached, but
+	event_base_free(eb);
 	return(0);
-
 }
 
 
