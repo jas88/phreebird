@@ -309,6 +309,8 @@ void cleanup(void) {
 	if (listen_name)	free(listen_name);
 	if (opts.keylist)	ldns_key_list_free(opts.keylist);
 	ght_finalize(opts.correlator);
+	if(rrsig_cache)	ght_finalize(rrsig_cache);
+	if(reqlist)		ght_finalize(rqlist);
 	ldns_rdf_deep_free(time_rdf);
 	CRYPTO_cleanup_all_ex_data();
 }
@@ -461,21 +463,17 @@ void stub_handler_UDP(int fd, short event, void *arg){
 	size_t len;
 	struct sockaddr_in cAddr;
 	phreebird_opts *opts = arg;
-	request_cache *store_cache;
-
+	request_cache store_cache;
 	
 	unsigned int l = sizeof(struct sockaddr);
 	len = recvfrom(fd, buf, 2048, 0, (struct sockaddr*)&cAddr, &l);
 
 	if(debug) { fprintf(stderr, "Received %u bytes from %s\n", len, inet_ntoa(cAddr.sin_addr));}
 
-	store_cache = calloc(sizeof(struct request_cache_struct), 1); //ALLOC1
-	if(store_cache == NULL) { pb_abort("couldn't allocate request_cache\n"); }
-	memcpy(&(store_cache->addr),&cAddr, sizeof(struct sockaddr_in));
-	store_cache->method = METHOD_UDP;
-	store_cache->free_buf = 0;
-
-	stub_handle_request(opts, buf, len, store_cache);
+	memcpy(&(store_cache.addr),&cAddr, sizeof(struct sockaddr_in));
+	store_cache.method = METHOD_UDP;
+	store_cache.free_buf = 0;
+	stub_handle_request(opts, buf, len, &store_cache);
 }
 
 
