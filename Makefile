@@ -8,7 +8,7 @@ all: phreebird phreeload ldns_chase unbound_trace
 
 deps:
 	( cd deps/ldns-1.6.10 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
-	$(MAKE) -C deps/ldns-1.6.5 all install
+	$(MAKE) -C deps/ldns-1.6.10 all install
 	( cd deps/libevent-2.0.11-stable && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
 	$(MAKE) -C deps/libevent-2.0.11-stable all install
 	( cd deps/libghthash-0.6.2 && ./configure --prefix=`pwd`/.. --enable-static --disable-shared )
@@ -58,5 +58,5 @@ depclean:
 	$(RM) -r deps/{sbin,share,lib,bin,etc,include}
 	$(MAKE) -C deps/libevent-2.0.11-stable clean
 	$(MAKE) -C deps/unbound-1.4.9 clean
-	$(MAKE) -C deps/ldns-1.6.5 clean
+	$(MAKE) -C deps/ldns-1.6.10 clean
 	$(MAKE) -C deps/libghthash-0.6.2 clean
