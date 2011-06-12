@@ -155,26 +155,23 @@ char *listen_name=NULL;
 
 // SECTION 4:  MAIN
 
+phreebird_opts opts={0};
 int main(int argc, char **argv){
 
 	int c;
 	char *p;
-	phreebird_opts *opts;
 	//extern char *optarg;
 	//extern int optind, opterr, optopt;	
 
 	listen_name=strdup("0.0.0.0");
 	if (!listen_name) exit(255);
 
-	opts = calloc(sizeof(struct phreebird_opts_struct), 1);  
-	if(opts==NULL) exit(255);
-
-	set_defaults(opts);
+	set_defaults(&opts);
 
 	while ((c = getopt(argc, argv, "c:u:k:gdb:?m:l:")) != -1) {
 		switch (c){
 			case 'c':
-				if (!(opts->chroot=strdup(optarg)))
+				if (!(opts.chroot=strdup(optarg)))
 					exit(255);
 				break;
 			case 'u':
@@ -185,15 +182,15 @@ int main(int argc, char **argv){
 						perror("Lookup user ID to run as");
 						exit(255);
 					}
-					opts->uid=pw->pw_uid;
+					opts.uid=pw->pw_uid;
 				}
 				break;
 			case 'k':
-				LDNS_FREE(opts->dnskey_fname);
-				opts->dnskey_fname = strdup(optarg);
+				LDNS_FREE(opts.dnskey_fname);
+				opts.dnskey_fname = strdup(optarg);
 				break;
 			case 'g':
-				opts->gen_key=1;
+				opts.gen_key=1;
 				break;
 			case 'd':
 				debug=1;
@@ -202,9 +199,9 @@ int main(int argc, char **argv){
 				p=strchr(optarg, ':');
 				if(p) *p=0;
 				//LDNS_FREE(opts->backend_ip);
-				inet_aton(optarg, &opts->back_addr.sin_addr);
+				inet_aton(optarg, &opts.back_addr.sin_addr);
 				if(p){
-					opts->back_addr.sin_port = htons(atoi(p+1));
+					opts.back_addr.sin_port = htons(atoi(p+1));
 					}
 				//opts->backend_ip = strdup(optarg);
 				//if(p){opts->backend_port = atoi(p+1);}
@@ -227,10 +224,10 @@ int main(int argc, char **argv){
 			}
 		}
 
-	init_key(opts);
-	init_sockets(opts);
+	init_key(&opts);
+	init_sockets(&opts);
 
-	execute_event_listener(opts);
+	execute_event_listener(&opts);
 	//never reached
 	return 0;
 
@@ -286,7 +283,8 @@ void init_key(phreebird_opts *opts){
 	if(opts->keylist == NULL) { pb_abort("couldn't make keylist\n"); }
 	status = ldns_key_list_push_key(opts->keylist, opts->key);	
 	if(status == 0) { pb_abort("couldn't push key onto keylist\n"); }
-
+	
+	fclose(f);
 }
 
 int setup_key(ldns_key *key){
@@ -299,6 +297,20 @@ int setup_key(ldns_key *key){
 	return(1);
 }
 
+
+void cleanup(void) {
+	ldns_key *key;
+	while(key=ldns_key_list_pop_key(opts.keylist)) {
+		ldns_key_deep_free(key);
+	}
+	ldns_key_deep_free(opts.key);
+	
+	if (opts.dnskey_fname) free(opts.dnskey_fname);
+	if (listen_name) free(listen_name);
+	ldns_key_list_free(opts.keylist);
+	ght_finalize(opts.correlator);
+	ldns_rdf_deep_free(time_rdf);
+}
 
 
 void set_defaults(phreebird_opts *opts){
@@ -317,7 +329,8 @@ void set_defaults(phreebird_opts *opts){
 	opts->pcount=0;
 	opts->http_port = 80;
 	time_rdf = ldns_dname_new_frm_str("_dns._time.");
-	}
+	atexit(cleanup);
+}
 
 int init_udp_socket(unsigned short port){
 	int sock;
@@ -429,7 +442,7 @@ int execute_event_listener(phreebird_opts *opts){
 		}
 		
 	dropprivs(opts);
-		
+
 	event_dispatch();
 	// never reached, but
 	return(0);
