@@ -463,14 +463,13 @@ void stub_handler_UDP(int fd, short event, void *arg){
 	size_t len;
 	struct sockaddr_in cAddr;
 	phreebird_opts *opts = arg;
-	request_cache store_cache;
+	request_cache store_cache={0};
 	
 	unsigned int l = sizeof(struct sockaddr);
-	len = recvfrom(fd, buf, 2048, 0, (struct sockaddr*)&cAddr, &l);
+	len = recvfrom(fd, buf, 2048, 0, (struct sockaddr*)&(store_cache.addr), &l);
 
-	if(debug) { fprintf(stderr, "Received %u bytes from %s\n", len, inet_ntoa(cAddr.sin_addr));}
+	if(debug) { fprintf(stderr, "Received %u bytes from %s\n", len, inet_ntoa(&(store_cache.addr)));}
 
-	memcpy(&(store_cache.addr),&cAddr, sizeof(struct sockaddr_in));
 	store_cache.method = METHOD_UDP;
 	store_cache.free_buf = 0;
 	stub_handle_request(opts, buf, len, &store_cache);
