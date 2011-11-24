@@ -310,7 +310,6 @@ void cleanup(void) {
 	if (opts.keylist)	ldns_key_list_free(opts.keylist);
 	ght_finalize(opts.correlator);
 	if(rrsig_cache)	ght_finalize(rrsig_cache);
-	if(reqlist)		ght_finalize(rqlist);
 	ldns_rdf_deep_free(time_rdf);
 	CRYPTO_cleanup_all_ex_data();
 }
@@ -468,7 +467,7 @@ void stub_handler_UDP(int fd, short event, void *arg){
 	unsigned int l = sizeof(struct sockaddr);
 	len = recvfrom(fd, buf, 2048, 0, (struct sockaddr*)&(store_cache.addr), &l);
 
-	if(debug) { fprintf(stderr, "Received %u bytes from %s\n", len, inet_ntoa(&(store_cache.addr)));}
+	if(debug) { fprintf(stderr, "Received %u bytes from %s\n", len, inet_ntoa(store_cache.addr.sin_addr));}
 
 	store_cache.method = METHOD_UDP;
 	store_cache.free_buf = 0;
